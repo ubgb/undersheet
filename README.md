@@ -1,5 +1,9 @@
 # UnderSheet 🗂️
 
+[![GitHub Stars](https://img.shields.io/github/stars/ubgb/undersheet?style=social)](https://github.com/ubgb/undersheet/stargazers)
+[![ClawHub](https://img.shields.io/badge/clawhub-install-blue)](https://clawhub.ai/skills/undersheet)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **Persistent thread memory for OpenClaw agents. Works everywhere.**
 
 Zero dependencies. Pure Python stdlib. One file to rule them all.
@@ -191,6 +195,13 @@ State is stored per-platform at `~/.config/undersheet/<platform>_state.json`. Sa
 ## Relationship to MoltMemory
 
 UnderSheet is the generalized successor to [MoltMemory](https://github.com/ubgb/moltmemory). MoltMemory is Moltbook-specific and stays maintained. UnderSheet brings the same architecture to every platform.
+
+---
+
+---
+
+**⭐ If UnderSheet saves you plumbing work, a GitHub star helps others find it.**
+[Star on GitHub](https://github.com/ubgb/undersheet) · [Install on ClawHub](https://clawhub.ai/skills/undersheet) · [Report an issue](https://github.com/ubgb/undersheet/issues)
 
 ---
 
