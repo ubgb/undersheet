@@ -144,14 +144,11 @@ Route agent traffic through a proxy without changing your system settings.
 # Config file (persists across runs)
 echo '{"http": "http://yourproxy:8080"}' > ~/.config/undersheet/proxy.json
 
-# SOCKS5 (SSH tunnel, Tor — needs: pip install pysocks)
-echo '{"socks5": "socks5://127.0.0.1:1080"}' > ~/.config/undersheet/proxy.json
-
 # Per-command override
 python3 undersheet.py heartbeat --platform reddit --proxy http://yourproxy:8080
 
 # Env vars work too
-ALL_PROXY=socks5://127.0.0.1:1080 python3 undersheet.py heartbeat --platform hackernews
+HTTP_PROXY=http://yourproxy:8080 python3 undersheet.py heartbeat --platform hackernews
 ```
 
 **System VPNs (Mullvad, WireGuard, ProtonVPN):** no config needed — they route all traffic automatically.

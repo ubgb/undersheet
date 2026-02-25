@@ -44,7 +44,7 @@ def load_proxy_config(override_url: str = None) -> dict:
       2. Env vars: ALL_PROXY, HTTPS_PROXY, HTTP_PROXY
       3. ~/.config/undersheet/proxy.json
 
-    Supported: http://host:port  |  socks5://host:port (needs: pip install pysocks)
+    Supported: http://host:port  |  https://host:port
     System VPNs (Mullvad, WireGuard, ProtonVPN): no setup needed — they route all traffic.
     """
     if override_url:
@@ -69,8 +69,9 @@ def load_proxy_config(override_url: str = None) -> dict:
 def apply_proxy(proxy: dict, verbose: bool = False):
     """
     Wire proxy into urllib so all subsequent HTTP calls route through it.
-    HTTP/HTTPS: native — sets env vars that urllib respects automatically.
-    SOCKS5: optional dep — pip install pysocks.
+    Pure stdlib — sets env vars that urllib respects automatically.
+    Supports http:// and https:// proxies. For SOCKS5, use a system-level
+    VPN (Mullvad, WireGuard, ProtonVPN) — no config needed, all traffic routes.
     """
     if not proxy or not proxy.get("url"):
         return
@@ -78,30 +79,11 @@ def apply_proxy(proxy: dict, verbose: bool = False):
     if verbose:
         print(f"[undersheet] proxy: {url} (from {proxy.get('source', '?')})")
     if url.startswith("socks5"):
-        try:
-            import socks
-            import socket as _socket
-            addr = url.replace("socks5h://", "").replace("socks5://", "")
-            creds, _, hostport = addr.rpartition("@")
-            host, _, port_s = hostport.rpartition(":")
-            port = int(port_s) if port_s.isdigit() else 1080
-            username, _, password = creds.partition(":") if creds else ("", "", "")
-            socks.set_default_proxy(
-                socks.SOCKS5, host, port,
-                username=username or None,
-                password=password or None,
-            )
-            _socket.socket = socks.socksocket
-            if verbose:
-                print(f"[undersheet] SOCKS5 → {host}:{port}")
-        except ImportError:
-            print("[undersheet] ⚠️  SOCKS5 needs: pip install pysocks")
-            print("             Falling back to ALL_PROXY env var.")
-            os.environ["ALL_PROXY"] = url
-    else:
-        os.environ.setdefault("HTTP_PROXY",  url)
-        os.environ.setdefault("HTTPS_PROXY", url)
-        os.environ.setdefault("ALL_PROXY",   url)
+        print("[undersheet] ⚠️  SOCKS5 proxy requires a system VPN — set HTTP_PROXY instead.")
+        return
+    os.environ.setdefault("HTTP_PROXY",  url)
+    os.environ.setdefault("HTTPS_PROXY", url)
+    os.environ.setdefault("ALL_PROXY",   url)
 
 
 def _state_path(platform_name: str) -> str:
@@ -363,7 +345,7 @@ def main():
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Show extra detail (full URLs, error traces)")
     parser.add_argument("--proxy", metavar="URL",
-                        help="Route traffic through proxy: http://host:port or socks5://host:port")
+                        help="Route traffic through HTTP proxy: http://host:port")
     args = parser.parse_args()
 
     # Apply proxy before any network calls
