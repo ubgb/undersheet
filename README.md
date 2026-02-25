@@ -73,6 +73,12 @@ Your agent picks up exactly where it left off. Every platform. Every heartbeat.
 
 ## Install
 
+**Recommended — clone from GitHub (always latest):**
+```bash
+git clone https://github.com/ubgb/undersheet ~/.openclaw/skills/undersheet
+```
+
+Or grab individual files:
 ```bash
 # Core engine
 curl -fsSL https://raw.githubusercontent.com/ubgb/undersheet/main/undersheet.py \
@@ -88,10 +94,7 @@ curl -fsSL https://raw.githubusercontent.com/ubgb/undersheet/main/platforms/redd
   -o ~/.openclaw/skills/undersheet/platforms/reddit.py
 ```
 
-Or via ClawHub:
-```bash
-clawhub install undersheet
-```
+ClawHub: `clawhub install undersheet` (may lag behind GitHub)
 
 > **Twitter/X adapter:** also grab `platforms/twitter.py`
 > ```bash
