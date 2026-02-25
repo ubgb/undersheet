@@ -250,11 +250,36 @@ def heartbeat(platform_name: str, min_score: int = 0, verbose: bool = False):
 # CLI
 # ---------------------------------------------------------------------------
 
+def status(platform_name: str):
+    """Print a quick overview: tracked threads, unseen feed count, last run."""
+    state = load_state(platform_name)
+    threads = state.get("threads", {})
+    seen_count = len(state.get("seen_post_ids", []))
+    last_hb = state.get("last_heartbeat", "never")
+
+    print(f"[undersheet:{platform_name}] status")
+    print(f"  Last heartbeat : {last_hb}")
+    print(f"  Tracked threads: {len(threads)}")
+    print(f"  Seen post IDs  : {seen_count}")
+
+    if threads:
+        print("\n  Threads:")
+        for tid, meta in threads.items():
+            title = meta.get("title") or tid
+            count = meta.get("comment_count", 0)
+            last = meta.get("last_seen", "")[:10]
+            url   = meta.get("url", "")
+            print(f"    [{count}💬] {title[:60]}  (last seen {last})")
+            if url:
+                print(f"         {url}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="UnderSheet — persistent thread memory for OpenClaw agents"
     )
-    parser.add_argument("cmd", choices=["heartbeat", "feed-new", "track", "unread", "platforms"],
+    parser.add_argument("cmd",
+                        choices=["heartbeat", "feed-new", "track", "unread", "status", "platforms"],
                         help="Command to run")
     parser.add_argument("--platform", "-p", default="moltbook",
                         help="Platform adapter to use (default: moltbook)")
@@ -263,7 +288,8 @@ def main():
                         help="Minimum score/upvotes for feed posts")
     parser.add_argument("--limit", type=int, default=5,
                         help="Max feed posts to return")
-    parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Show extra detail (full URLs, error traces)")
     args = parser.parse_args()
 
     if args.cmd == "platforms":
@@ -273,7 +299,10 @@ def main():
             print(f"  - {a}")
         return
 
-    if args.cmd == "heartbeat":
+    if args.cmd == "status":
+        status(args.platform)
+
+    elif args.cmd == "heartbeat":
         heartbeat(args.platform, min_score=args.min_score, verbose=args.verbose)
 
     elif args.cmd == "feed-new":
@@ -283,36 +312,57 @@ def main():
         save_state(args.platform, state)
         if posts:
             for p in posts:
-                print(f"[{p.get('score',0)}↑] {p.get('title', p.get('id',''))} — {p.get('url','')}")
+                score = p.get('score', 0)
+                title = p.get('title', p.get('id', ''))
+                url   = p.get('url', '')
+                print(f"[{score}↑] {title}")
+                if args.verbose and url:
+                    print(f"     {url}")
         else:
             print("No new posts.")
 
     elif args.cmd == "track":
         if not args.thread_id:
-            print("--thread-id required for 'track'")
+            print("Error: --thread-id required for 'track'")
             sys.exit(1)
         adapter = load_adapter(args.platform)
         state = load_state(args.platform)
-        threads = adapter.get_threads([args.thread_id])
+        try:
+            threads = adapter.get_threads([args.thread_id])
+        except Exception as e:
+            print(f"Error fetching thread: {e}")
+            if args.verbose:
+                import traceback; traceback.print_exc()
+            sys.exit(1)
         if threads:
             t = threads[0]
             track_thread(state, args.thread_id, t.get("comment_count", 0),
                          title=t.get("title", ""), url=t.get("url", ""))
             save_state(args.platform, state)
-            print(f"Tracking: {t.get('title', args.thread_id)} ({t.get('comment_count', 0)} comments)")
+            print(f"Now tracking: {t.get('title', args.thread_id)}")
+            print(f"  Comments: {t.get('comment_count', 0)}  |  {t.get('url', '')}")
         else:
-            print(f"Could not fetch thread: {args.thread_id}")
+            print(f"Error: could not fetch thread '{args.thread_id}' on {args.platform}")
+            sys.exit(1)
 
     elif args.cmd == "unread":
         adapter = load_adapter(args.platform)
         state = load_state(args.platform)
-        unread = get_unread_threads(adapter, state)
+        try:
+            unread = get_unread_threads(adapter, state)
+        except Exception as e:
+            print(f"Error checking threads: {e}")
+            if args.verbose:
+                import traceback; traceback.print_exc()
+            sys.exit(1)
         save_state(args.platform, state)
         if unread:
             for t in unread:
-                print(f"+{t['new_replies']} new — {t['title'] or t['id']}")
+                print(f"+{t['new_replies']} new replies — {t['title'] or t['id']}")
+                if args.verbose:
+                    print(f"  {t['url']}")
         else:
-            print("No unread threads.")
+            print("All threads up to date.")
 
 
 if __name__ == "__main__":
