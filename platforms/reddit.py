@@ -94,6 +94,10 @@ class Adapter(PlatformAdapter):
 
     def __init__(self):
         self._creds = _load_creds()
+        if not self._creds:
+            raise FileNotFoundError(
+                f"Reddit credentials not configured. See {CREDS_PATH}"
+            )
         self._ua = self._creds.get("user_agent", "undersheet/1.0")
 
     def get_credentials(self) -> dict:

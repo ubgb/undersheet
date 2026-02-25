@@ -14,7 +14,7 @@ import urllib.parse
 import urllib.error
 from undersheet import PlatformAdapter
 
-MOLTBOOK_API = "https://api.moltbook.com/api/v1"
+MOLTBOOK_API = "https://www.moltbook.com/api/v1"
 CREDS_PATH = os.path.expanduser("~/.config/moltbook/credentials.json")
 
 

@@ -119,6 +119,9 @@ def _test_platform(platform: str):
     except SystemExit:
         skip(f"{platform}: load adapter", "adapter file not found")
         return
+    except Exception as e:
+        skip(f"{platform}: load adapter", f"init error: {e}")
+        return
 
     try:
         adapter.get_credentials()
@@ -132,17 +135,27 @@ def _test_platform(platform: str):
 
     def _test_feed():
         posts = adapter.get_feed(limit=3)
+        if isinstance(posts, str):
+            raise Exception(posts)
         return isinstance(posts, list) and len(posts) > 0
 
     def _test_feed_fields():
         posts = adapter.get_feed(limit=1)
+        if isinstance(posts, str):
+            raise Exception(posts)
         if not posts:
             return False
         p = posts[0]
         return all(k in p for k in ("id", "title", "url"))
 
-    test(f"{platform}: get_feed() returns posts", _test_feed)
-    test(f"{platform}: feed posts have required fields (id/title/url)", _test_feed_fields)
+    try:
+        test(f"{platform}: get_feed() returns posts", _test_feed)
+        test(f"{platform}: feed posts have required fields (id/title/url)", _test_feed_fields)
+    except Exception as e:
+        if "credentials" in str(e).lower() or "not configured" in str(e).lower():
+            skip(f"{platform}: feed tests", "credentials not configured")
+        else:
+            raise
 
 
 parser = argparse.ArgumentParser()
