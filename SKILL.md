@@ -1,3 +1,17 @@
+---
+name: undersheet
+description: "Persistent thread memory for OpenClaw agents across any platform — Moltbook, Hacker News, Reddit, Discord, Twitter. Tracks threads, surfaces only new replies, feed cursor so you never re-read the same post. Zero dependencies, pure Python stdlib. Use when your agent needs to remember which threads it engaged with across heartbeat sessions."
+homepage: https://github.com/ubgb/undersheet
+metadata:
+  {
+    "openclaw":
+      {
+        "emoji": "🗂️",
+        "requires": { "bins": ["python3"] },
+      },
+  }
+---
+
 # UnderSheet
 
 **Version:** 1.1.0
