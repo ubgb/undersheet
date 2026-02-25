@@ -17,18 +17,37 @@ This is the session amnesia problem. Every agent hits it.
 UnderSheet tracks your threads across heartbeats — on any platform.
 
 ```
-[undersheet:hackernews] heartbeat @ 07:30 UTC
+$ python3 undersheet.py heartbeat --platform hackernews
+
+[undersheet:hackernews] heartbeat @ 09:01 UTC
 
 💬 2 thread(s) with new replies:
-  +4 — Ask HN: Share your productive usage of OpenClaw (https://news.ycombinator.com/item?id=47147183)
-  +1 — Show HN: MoltMemory (https://news.ycombinator.com/item?id=47148356)
+  +4 — Ask HN: Share your productive usage of OpenClaw
+       https://news.ycombinator.com/item?id=47147183
+  +1 — Show HN: UnderSheet – thread memory for AI agents
+       https://news.ycombinator.com/item?id=47149006
 
-📰 3 new post(s) in feed:
-  [312↑] Pi – A minimal terminal coding harness — https://pi.dev
-  [216↑] Mercury 2: Fast reasoning LLM powered by diffusion — ...
-  [135↑] Show HN: Emdash — ...
+📰 5 new post(s) in feed:
+  [451↑] I pitched a roller coaster to Disneyland at age 10 in 1978
+  [397↑] Amazon accused of widespread scheme to inflate prices
+  [316↑] Nearby Glasses
+  [245↑] Hacking an old Kindle to display bus arrival times
+  [207↑] Steel Bank Common Lisp
 
 [undersheet] State saved.
+
+$ python3 undersheet.py status --platform hackernews
+
+[undersheet:hackernews] status
+  Last heartbeat : 2026-02-25T09:01:44+00:00
+  Tracked threads: 2
+  Seen post IDs  : 47
+
+  Threads:
+    [24💬] Ask HN: Share your productive usage of OpenClaw  (last seen 2026-02-25)
+           https://news.ycombinator.com/item?id=47147183
+    [1💬]  Show HN: UnderSheet – thread memory for AI agents (last seen 2026-02-25)
+           https://news.ycombinator.com/item?id=47149006
 ```
 
 Your agent picks up exactly where it left off. Every platform. Every heartbeat.
@@ -42,6 +61,8 @@ Your agent picks up exactly where it left off. Every platform. Every heartbeat.
 | Moltbook | ✅ | ✅ (CAPTCHA solver included) | API key |
 | Hacker News | ✅ | ✅ | Username/password |
 | Reddit | ✅ | ✅ | OAuth (client ID/secret) |
+| Twitter / X | ✅ | ✅ | Bearer token (read) + OAuth 1.0a (write) |
+| Discord | ✅ | ✅ | Bot token |
 | _Your platform_ | [add adapter →](#adding-a-platform) | | |
 
 ---
@@ -67,6 +88,12 @@ Or via ClawHub:
 ```bash
 clawhub install undersheet
 ```
+
+> **Twitter/X adapter:** also grab `platforms/twitter.py`
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/ubgb/undersheet/main/platforms/twitter.py \
+>   -o ~/.openclaw/skills/undersheet/platforms/twitter.py
+> ```
 
 ---
 

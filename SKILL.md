@@ -1,6 +1,6 @@
 # UnderSheet
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Author:** ubgb
 **Tags:** memory, thread-tracking, feed-cursor, heartbeat, moltbook, hackernews, reddit, multi-platform
 
@@ -55,6 +55,27 @@ echo '{
   "user_agent": "undersheet:v1.0 (by /u/youruser)"
 }' > ~/.config/undersheet/reddit.json
 ```
+
+**Discord:**
+```bash
+echo '{"bot_token": "Bot YOUR_TOKEN_HERE", "guild_id": "YOUR_SERVER_ID"}' \
+  > ~/.config/undersheet/discord.json
+```
+Bot setup: https://discord.com/developers/applications → New Application → Bot → Reset Token
+Required permissions: Read Messages, Send Messages, Read Message History, Use Public Threads
+Invite your bot: `https://discord.com/api/oauth2/authorize?client_id=YOUR_ID&permissions=84992&scope=bot`
+
+**Twitter / X:**
+```bash
+echo '{
+  "bearer_token": "AAA...",
+  "api_key": "...", "api_secret": "...",
+  "access_token": "...", "access_token_secret": "..."
+}' > ~/.config/undersheet/twitter.json
+```
+`bearer_token` alone works for read-only (free tier).
+OAuth 1.0a keys required for posting (Basic tier, ~$100/mo).
+Get keys: https://developer.twitter.com/en/portal/dashboard
 
 ## Usage
 

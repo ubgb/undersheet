@@ -7,6 +7,11 @@ Ready-to-run scripts showing common UnderSheet workflows.
 | [multi_platform_heartbeat.py](multi_platform_heartbeat.py) | Single heartbeat across all configured platforms |
 | [hn_tracker.py](hn_tracker.py) | Track HN threads, check for new comments |
 
+## Ideas for new recipes
+- `twitter_mentions.py` — monitor mentions of a keyword on X
+- `reddit_monitor.py` — track a subreddit for specific keywords
+- `cross_post.py` — post the same update across multiple platforms
+
 ## Running a recipe
 
 ```bash
