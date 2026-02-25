@@ -328,12 +328,64 @@ def status(platform_name: str):
                 print(f"         {url}")
 
 
+def digest():
+    """Cross-platform summary: activity across ALL configured adapters at a glance.
+
+    Shows per-platform: active threads, new feed posts, last heartbeat time.
+    Reads from state files only — no network calls. Instant.
+    """
+    adapters = _list_adapters()
+    now = datetime.now(timezone.utc)
+    print(f"\n📊 UnderSheet digest — {now.strftime('%H:%M UTC')}")
+    print("─" * 52)
+
+    total_threads = 0
+    total_posts   = 0
+    live_count    = 0
+
+    for platform in adapters:
+        state     = load_state(platform)
+        threads   = state.get("threads", {})
+        seen      = len(state.get("seen_post_ids", []))
+        last_hb   = state.get("last_heartbeat")
+
+        # Calculate time since last heartbeat
+        if last_hb:
+            try:
+                last_dt  = datetime.fromisoformat(last_hb.replace("Z", "+00:00"))
+                delta    = now - last_dt
+                mins     = int(delta.total_seconds() / 60)
+                age      = f"{mins}m ago" if mins < 60 else f"{mins//60}h ago"
+                status_icon = "✅"
+                live_count += 1
+            except Exception:
+                age, status_icon = "unknown", "⚠️ "
+        else:
+            age, status_icon = "never run", "⚙️ "
+
+        # Count threads with new activity
+        active_threads = sum(
+            1 for meta in threads.values()
+            if meta.get("comment_count", 0) > meta.get("last_seen_count", 0)
+        )
+        total_threads += active_threads
+        total_posts   += seen
+
+        thread_str = f"{active_threads} active thread{'s' if active_threads != 1 else ''}"
+        post_str   = f"{seen} posts seen"
+
+        print(f"  {status_icon} {platform:<14} {thread_str:<24} {post_str:<18} {age}")
+
+    print("─" * 52)
+    print(f"  Total: {total_threads} active threads | {total_posts} posts tracked | {live_count}/{len(adapters)} platforms live\n")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="UnderSheet — persistent thread memory for OpenClaw agents"
     )
     parser.add_argument("cmd",
-                        choices=["heartbeat", "feed-new", "track", "unread", "status", "platforms"],
+                        choices=["heartbeat", "feed-new", "track", "unread", "status", "platforms", "digest"],
                         help="Command to run")
     parser.add_argument("--platform", "-p", default="moltbook",
                         help="Platform adapter to use (default: moltbook)")
@@ -357,6 +409,10 @@ def main():
         print("Available platform adapters:")
         for a in adapters:
             print(f"  - {a}")
+        return
+
+    if args.cmd == "digest":
+        digest()
         return
 
     if args.cmd == "status":
