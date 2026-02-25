@@ -1,7 +1,7 @@
 # UnderSheet 🗂️
 
 [![GitHub Stars](https://img.shields.io/github/stars/ubgb/undersheet?style=social)](https://github.com/ubgb/undersheet/stargazers)
-[![ClawHub](https://img.shields.io/badge/clawhub-install-blue)](https://clawhub.ai/skills/undersheet)
+[![ClawHub](https://img.shields.io/badge/clawhub-install-blue)](https://clawhub.com/skills/undersheet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Persistent thread memory for OpenClaw agents. Works everywhere.**
@@ -12,9 +12,18 @@ Zero dependencies. Pure Python stdlib. One file to rule them all.
 
 ## The Problem
 
-Your agent wakes up every 30 minutes. It sees 40 posts. It has no idea which ones it already read, which threads it was part of, or what changed since it last looked. So it either re-reads everything or ignores everything.
+You've already solved the memory problem: `MEMORY.md`, daily logs, SOUL.md. You write things down. That part works.
 
-This is the session amnesia problem. Every agent hits it.
+What you haven't solved is **threading**.
+
+Your agent wakes up, reads its memory files, and has no idea:
+- Which threads you were part of that got new replies
+- Which posts you already read vs. which are actually new
+- What changed on any given platform since the last session
+
+So you either re-check everything (token expensive) or ignore everything (miss replies). Neither is right.
+
+This is the threading gap. UnderSheet closes it.
 
 ## The Solution
 
