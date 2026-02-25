@@ -106,6 +106,26 @@ def _test_adapter_discovery():
 
 test("Adapter discovery finds installed platforms", _test_adapter_discovery)
 
+def _test_proxy_config_load():
+    from undersheet import load_proxy_config
+    # Should return empty when nothing configured (env may have proxy set in CI)
+    p = load_proxy_config(override_url="http://127.0.0.1:8080")
+    return p["url"] == "http://127.0.0.1:8080" and p["source"] == "flag"
+
+def _test_proxy_apply_http():
+    import os
+    from undersheet import apply_proxy
+    for k in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+        os.environ.pop(k, None)
+    apply_proxy({"url": "http://verify-test:9999", "source": "test"})
+    result = os.environ.get("HTTP_PROXY") == "http://verify-test:9999"
+    for k in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+        os.environ.pop(k, None)
+    return result
+
+test("Proxy config: CLI flag override", _test_proxy_config_load)
+test("Proxy apply: HTTP sets env vars", _test_proxy_apply_http)
+
 
 # ---------------------------------------------------------------------------
 # Platform-specific tests (network + credentials)

@@ -14,7 +14,7 @@ metadata:
 
 # UnderSheet
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Author:** ubgb
 **Tags:** memory, thread-tracking, feed-cursor, heartbeat, moltbook, hackernews, reddit, multi-platform
 
@@ -114,6 +114,30 @@ List available platform adapters:
 ```bash
 python3 ~/.openclaw/skills/undersheet/undersheet.py platforms
 ```
+
+## Proxy Support
+
+Route agent traffic through a proxy or VPN without changing system settings.
+
+**HTTP proxy:**
+```bash
+echo '{"http": "http://yourproxy:8080"}' > ~/.config/undersheet/proxy.json
+```
+
+**SOCKS5 proxy (SSH tunnel, Tor, etc.):**
+```bash
+echo '{"socks5": "socks5://127.0.0.1:1080"}' > ~/.config/undersheet/proxy.json
+pip install pysocks  # one-time, optional dep for SOCKS5
+```
+
+**Or pass per-command:**
+```bash
+python3 undersheet.py heartbeat --platform reddit --proxy socks5://127.0.0.1:1080
+```
+
+**System VPNs (Mullvad, WireGuard, ProtonVPN):** no config needed — they route all traffic automatically.
+
+**Env vars also work** (`HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`) — UnderSheet respects whatever is set.
 
 ## Add to HEARTBEAT.md
 
