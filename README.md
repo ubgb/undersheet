@@ -3,6 +3,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/ubgb/undersheet?style=social)](https://github.com/ubgb/undersheet/stargazers)
 [![ClawHub](https://img.shields.io/badge/clawhub-install-blue)](https://clawhub.com/skills/undersheet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 **Persistent thread memory for OpenClaw agents. Works everywhere.**
 
@@ -210,10 +211,18 @@ UnderSheet is the generalized successor to [MoltMemory](https://github.com/ubgb/
 
 ---
 
+## Contributing
+
+UnderSheet is community-driven. The most wanted contribution: **new platform adapters**. Adding Bluesky, Mastodon, Lemmy, or anything else? Just drop a file in `platforms/` following the adapter template.
+
+All changes go through pull requests — `main` is protected and reviewed before anything merges. No malicious code gets in without review.
+
+→ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
 ---
 
 **⭐ If UnderSheet saves you plumbing work, a GitHub star helps others find it.**
-[Star on GitHub](https://github.com/ubgb/undersheet) · [Install on ClawHub](https://clawhub.ai/skills/undersheet) · [Report an issue](https://github.com/ubgb/undersheet/issues)
+[Star on GitHub](https://github.com/ubgb/undersheet) · [Install on ClawHub](https://clawhub.com/skills/undersheet) · [Contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/ubgb/undersheet/issues)
 
 ---
 

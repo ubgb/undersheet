@@ -1,75 +1,87 @@
 # Contributing to UnderSheet
 
-## The fastest way to contribute: add a platform adapter
+Thanks for wanting to help. UnderSheet is open source (MIT) and actively looking for contributions — especially new platform adapters.
 
-An adapter is a single Python file in `platforms/`. Here's the minimum viable version:
+## How It Works
+
+- `main` is protected. All changes go through **pull requests**, no exceptions.
+- PRs need 1 approval before merging. Maintainer reviews within a few days.
+- Keep it focused: one thing per PR. Small and correct beats large and risky.
+
+## What's Wanted
+
+**High priority:**
+- New platform adapters (Bluesky, Mastodon, Lemmy, LinkedIn, Slack — see below)
+- Bug fixes with a test case or repro
+- Better error messages and edge case handling
+
+**Also welcome:**
+- Documentation improvements
+- Performance tweaks
+- Proxy/auth edge cases
+
+**Not the right fit:**
+- Heavy dependencies (this is stdlib-only, intentionally)
+- Major architecture changes without discussing in an issue first
+- Anything that requires credentials you can't actually test with
+
+---
+
+## Adding a Platform Adapter
+
+Drop a file in `platforms/` with a class named `Adapter`:
 
 ```python
-# platforms/myplatform.py
 from undersheet import PlatformAdapter
 
 class Adapter(PlatformAdapter):
-    name = "myplatform"
+    name = "myplatform"          # used in CLI: --platform myplatform
+    config_file = "myplatform"   # reads ~/.config/undersheet/myplatform.json
+
+    def auth(self, config: dict):
+        """Store auth state. config = contents of the JSON config file."""
+        self.token = config.get("api_key")
 
     def get_threads(self, thread_ids: list) -> list:
         """
-        Fetch threads/posts by ID. Must return:
-        [{"id": str, "title": str, "url": str, "comment_count": int, "score": int}, ...]
+        Fetch current state for tracked threads.
+        Returns: [{"id", "title", "url", "comment_count"}, ...]
         """
         ...
 
-    def get_feed(self, limit: int = 25, **kwargs) -> list:
+    def get_feed(self, limit=25, **kwargs) -> list:
         """
-        Fetch recent posts. Must return:
-        [{"id": str, "title": str, "url": str, "score": int, "created_at": str}, ...]
+        Fetch the platform's feed/frontpage.
+        Returns: [{"id", "title", "url", "score", "created_at"}, ...]
         """
         ...
 
     def post_comment(self, thread_id: str, content: str, **kwargs) -> dict:
         """
-        Post a reply. Must return {"success": True} or {"error": "reason"}
+        Post a reply.
+        Returns: {"success": True} or {"error": "reason"}
         """
         ...
 ```
 
-That's it. Drop the file in `platforms/`, run `python3 undersheet.py platforms` to confirm it shows up, then `python3 undersheet.py heartbeat --platform myplatform` to test.
+Run `python3 undersheet.py platforms` to confirm it's auto-detected.
 
-## Testing your adapter
+**Credential config** goes in `~/.config/undersheet/myplatform.json`. Document the expected keys in your PR description.
 
-```bash
-# Run the verify script against your platform
-python3 verify.py --platform myplatform
+---
 
-# Or run the full suite
-python3 verify.py
-```
+## Submitting a PR
 
-## Credentials convention
+1. Fork the repo (or ask for write access if you're a regular contributor)
+2. Branch off main: `git checkout -b feature/bluesky-adapter`
+3. Make your changes
+4. Test it actually works — real output preferred over mocked
+5. Open a PR against `main` with a short description of what and why
 
-Store credentials at `~/.config/undersheet/<platform>.json`. Document the exact format in your adapter's module docstring. Never hardcode secrets.
+That's it. No CLA, no lengthy checklist.
 
-## PR checklist
+---
 
-- [ ] Adapter file in `platforms/<platform>.py`
-- [ ] Module docstring explains credentials format + required permissions
-- [ ] `python3 verify.py --platform <platform>` passes at minimum the feed test
-- [ ] Added platform to the README table
+## Questions
 
-## Bugs / edge cases
-
-Open a GitHub issue with:
-- Platform name
-- What you expected vs. what happened
-- The raw API response if relevant (redact tokens)
-
-## Ideas for new adapters
-
-- Twitter / X
-- Mastodon
-- Slack
-- Telegram
-- GitHub Discussions
-- Lobsters
-- Dev.to
-
-If you're building one, open an issue first so we don't duplicate effort.
+Open an issue, or reach out on Moltbook / X [@A2091_](https://x.com/A2091_).
