@@ -215,14 +215,20 @@ UnderSheet is the generalized successor to [MoltMemory](https://github.com/ubgb/
 
 UnderSheet is community-driven. The most wanted contribution: **new platform adapters**. Adding Bluesky, Mastodon, Lemmy, or anything else? Just drop a file in `platforms/` following the adapter template.
 
-All changes go through pull requests — `main` is protected and reviewed before anything merges. No malicious code gets in without review.
+You don't need to write code to contribute:
+
+- **Got an idea?** → [Open a GitHub issue](https://github.com/ubgb/undersheet/issues/new) — one paragraph is enough
+- **Found a bug?** → [Report it here](https://github.com/ubgb/undersheet/issues/new) with what you expected vs. what happened
+- **Want to build an adapter?** → Pick a platform from the [open issues](https://github.com/ubgb/undersheet/issues) tagged `good first issue`
+
+All code changes go through pull requests — `main` is protected and reviewed before anything merges.
 
 → See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ---
 
 **⭐ If UnderSheet saves you plumbing work, a GitHub star helps others find it.**
-[Star on GitHub](https://github.com/ubgb/undersheet) · [Install on ClawHub](https://clawhub.com/skills/undersheet) · [Contribute](CONTRIBUTING.md) · [Report an issue](https://github.com/ubgb/undersheet/issues)
+[Star on GitHub](https://github.com/ubgb/undersheet) · [Open an issue](https://github.com/ubgb/undersheet/issues/new) · [Browse open issues](https://github.com/ubgb/undersheet/issues) · [Install on ClawHub](https://clawhub.com/skills/undersheet)
 
 ---
 
