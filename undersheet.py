@@ -93,14 +93,24 @@ def _state_path(platform_name: str) -> str:
 
 
 def load_state(platform_name: str) -> dict:
+    defaults = {
+        "threads": {},
+        "seen_post_ids": [],
+        "last_heartbeat": None,
+        "replied_comment_ids": [],  # dupe guard — IDs we've already replied to
+    }
     path = _state_path(platform_name)
     if os.path.exists(path):
         try:
             with open(path) as f:
-                return json.load(f)
+                state = json.load(f)
+            # Backfill new keys for existing state files
+            for k, v in defaults.items():
+                state.setdefault(k, v)
+            return state
         except Exception:
             pass
-    return {"threads": {}, "seen_post_ids": [], "last_heartbeat": None}
+    return defaults
 
 
 def save_state(platform_name: str, state: dict):
@@ -108,8 +118,50 @@ def save_state(platform_name: str, state: dict):
     # Cap seen_post_ids
     if len(state.get("seen_post_ids", [])) > MAX_SEEN_IDS:
         state["seen_post_ids"] = state["seen_post_ids"][-MAX_SEEN_IDS:]
+    # Cap replied_comment_ids
+    if len(state.get("replied_comment_ids", [])) > 2000:
+        state["replied_comment_ids"] = state["replied_comment_ids"][-2000:]
     with open(path, "w") as f:
         json.dump(state, f, indent=2)
+
+
+def mark_replied(state: dict, comment_id: str):
+    """
+    Record that we've replied to a comment — the ONLY correct dupe guard.
+    Call this after every successful reply. Never check comment.replies[] instead.
+    """
+    replied = state.get("replied_comment_ids", [])
+    if comment_id not in replied:
+        replied.append(comment_id)
+    state["replied_comment_ids"] = replied
+
+
+def get_unanswered_comments(adapter, state: dict, thread_ids: list) -> list:
+    """
+    Return individual comments on tracked threads that we haven't replied to yet.
+    Requires adapter to implement get_thread_comments(thread_id) -> list[dict].
+    Each comment dict must have at minimum: { "id": str, "author": str, "content": str }
+
+    Uses replied_comment_ids in state as the sole source of truth — not content
+    matching or nested-reply scanning, both of which produce false negatives.
+    """
+    if not hasattr(adapter, "get_thread_comments"):
+        return []  # adapter doesn't support per-comment fetching yet
+    replied = set(state.get("replied_comment_ids", []))
+    unanswered = []
+    for tid in thread_ids:
+        try:
+            comments = adapter.get_thread_comments(tid)
+        except Exception as e:
+            print(f"[undersheet] Warning: could not fetch comments for {tid}: {e}")
+            continue
+        for c in comments:
+            if c.get("id") in replied:
+                continue
+            if c.get("is_deleted") or c.get("is_spam"):
+                continue
+            unanswered.append({**c, "_thread_id": tid})
+    return unanswered
 
 
 # ---------------------------------------------------------------------------
@@ -139,6 +191,14 @@ class PlatformAdapter:
         Return recent posts/threads from the platform.
         Each dict must have at minimum:
           { "id": str, "title": str, "url": str, "score": int, "created_at": str }
+        """
+        raise NotImplementedError
+
+    def get_thread_comments(self, thread_id: str) -> list[dict]:
+        """
+        Optional. Return individual comments for a thread — enables get_unanswered_comments().
+        Each dict must have at minimum: { "id": str, "author": str, "content": str }
+        Implement this in your adapter to unlock per-comment reply deduplication.
         """
         raise NotImplementedError
 
