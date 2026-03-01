@@ -49,6 +49,16 @@ class Adapter(PlatformAdapter):
         """
         ...
 
+    def get_thread_comments(self, thread_id: str) -> list:
+        """
+        Optional — but strongly recommended. Return individual comments for a thread.
+        Enables get_unanswered_comments() + mark_replied() dupe guard.
+        Returns: [{"id", "author", "content", ...}, ...]
+
+        Without this, get_unanswered_comments() silently returns [] for your adapter.
+        """
+        ...
+
     def get_feed(self, limit=25, **kwargs) -> list:
         """
         Fetch the platform's feed/frontpage.
@@ -65,6 +75,26 @@ class Adapter(PlatformAdapter):
 ```
 
 Run `python3 undersheet.py platforms` to confirm it's auto-detected.
+
+### Dupe-Reply Guard (mandatory if posting comments)
+
+If your adapter posts comments, **always** use `get_unanswered_comments()` + `mark_replied()`. Never check `comment.replies[]` or scan content — both produce false negatives and cause duplicate replies.
+
+```python
+import undersheet as us
+
+state = us.load_state("myplatform")
+adapter = MyAdapter()
+
+for c in us.get_unanswered_comments(adapter, state, thread_ids):
+    result = adapter.post_comment(c["_thread_id"], f"reply to {c['author']}")
+    if result.get("success"):
+        us.mark_replied(state, c["id"])   # log ID — never re-fires on this comment
+        us.save_state("myplatform", state)
+    time.sleep(30)
+```
+
+`replied_comment_ids` in state.json is the sole source of truth. It caps at 2000 entries automatically.
 
 **Credential config** goes in `~/.config/undersheet/myplatform.json`. Document the expected keys in your PR description.
 
