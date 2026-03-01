@@ -108,12 +108,14 @@ def load_state(platform_name: str) -> dict:
             for k, v in defaults.items():
                 state.setdefault(k, v)
             return state
-        except Exception:
+        except (json.JSONDecodeError, OSError):
+            # Torn write or corrupt file — start fresh, don't crash
             pass
     return defaults
 
 
 def save_state(platform_name: str, state: dict):
+    """Atomic write — temp file + os.replace() so readers never see a partial write."""
     path = _state_path(platform_name)
     # Cap seen_post_ids
     if len(state.get("seen_post_ids", [])) > MAX_SEEN_IDS:
@@ -121,8 +123,10 @@ def save_state(platform_name: str, state: dict):
     # Cap replied_comment_ids
     if len(state.get("replied_comment_ids", [])) > 2000:
         state["replied_comment_ids"] = state["replied_comment_ids"][-2000:]
-    with open(path, "w") as f:
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
         json.dump(state, f, indent=2)
+    os.replace(tmp, path)  # atomic on POSIX, near-atomic on Windows
 
 
 def mark_replied(state: dict, comment_id: str):
